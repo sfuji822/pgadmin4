@@ -1,0 +1,56 @@
+version: '3'
+services:
+  geth:
+    container_name: scken-coin-eth
+#    image: ethereum/client-go:v1.8.27
+    image: sfuji822/client-go:v1.8.27
+    volumes:
+      - "$PWD/geth-data:/root/data"
+    working_dir: /root
+    #ports:
+    #  - "30303:30303"
+    expose:
+      - "8545" # enable JSON-RPC access fron only inside of network
+    networks:
+      - scken-coin-net
+    # following parameters are given to geth
+    command: >
+      --rpc
+      --networkid 10
+      --nodiscover
+      --datadir=/root/data
+      --rpcaddr "0.0.0.0"
+      --rpcport "8545"
+      --rpccorsdomain "*"
+      --rpcvhosts "*"
+      --rpcapi "eth,web3"
+      --unlock 0,1,2,3,4
+      --password "/dev/null"
+      --gasprice 0
+      --mine --minerthreads=1 
+
+  postgres:
+    container_name: scken-coin-db
+    image: postgres:10-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./pgsql-data:/var/lib/postgresql/data
+#    ports:
+#      - 5432:5432
+
+  pgadmin4:
+    container_name: scken-coin-pgadmin4
+    image: sfuji822/pgadmin4
+    volumes:
+      - ./pgadmin4-data:/var/www/pgadmin4
+    ports:
+      - 8000:80
+      - 5050:5050
+    tty: true
+#    depends_on:
+#      - postgres
+
+networks:
+  scken-coin-net:
+
